@@ -1,5 +1,4 @@
 #include <iostream>
-
 #include <utility>
 #include <vector>
 #include <unordered_set>
@@ -8,8 +7,6 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-
-#define FILE_NAME "Crystal Shards.png"
 
 #define SQUARE_ID 211
 #define BLACK_ID 1010
@@ -277,13 +274,5 @@ public:
 
 };
 
-int main() {
 
-    GDRectLoader rect_loader = GDRectLoader(FILE_NAME);
-    std::vector<std::string> list =  rect_loader.splitByColorString();
-    for (std::string string : list) {
-        std::cout << string << "\n";
-    }
-    return 0;
-}
 
