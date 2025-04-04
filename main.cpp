@@ -9,7 +9,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-#define FILE_NAME "4x2.bmp"
+#define FILE_NAME "Crystal Shards.png"
 
 #define SQUARE_ID 211
 #define BLACK_ID 1010
@@ -130,64 +130,66 @@ private:
         return output;
     }
 
-    void setColorRect(RGBA const color) {
+    void setColorRect() {
         std::unordered_set<Rect> checked;
-        std::unordered_set<Rect> sameColorRect;
-         // this might not work
-        // it didn't work
 
 
-        //RGBA color = {0, 0, 0, 255};
+        RGBA curr = pixels[0];
         for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                RGBA pixel = pixels[y * width + x];
-                if (pixel == color) {
-                    Rect rect = {x, y, 0, 0};
-                    while (pixels[y * width + x] == color && x < width) {
-                        x++;
+            for (int x = 0; x < width; ) {
+                curr = pixels[y * width + x];
+                Rect rect = {x, y, 0, 0};
+                while (pixels[y * width + x] == curr && x < width) {
+                    x++;
+                }
+                rect.width = x - rect.x;
+
+                int tempi = y;
+                char isGood = 1;
+                char alreadyChecked = 0;
+
+                while (isGood && (tempi < height)) {
+                    Rect testing = {rect.x, tempi, 1, rect.width };
+                    if (checked.contains(testing)) {
+                        alreadyChecked = 1;
+                        break;
                     }
-                    rect.width = x - rect.x;
-
-                    int tempi = y;
-                    char isGood = 1;
-                    char alreadyChecked = 0;
-
-                    while (isGood && (tempi < height)) {
-                        Rect testing = {rect.x, tempi, 1, rect.width };
-                        if (checked.contains(testing)) {
-                            alreadyChecked = 1;
-                            break;
-                        }
-                        for (int k = rect.x; k < rect.x + rect.width; k++) {
-                            checked.insert(testing);
-                            if (pixels[tempi * width + k] != color) {
-                                isGood = 0;
-                            }
-                        }
-                        if (isGood) {
-                            tempi++;
+                    for (int k = rect.x; k < rect.x + rect.width; k++) {
+                        checked.insert(testing);
+                        if (pixels[tempi * width + k] != curr) {
+                            isGood = 0;
                         }
                     }
-
-                    if (!alreadyChecked) {
-                        rect.height = tempi - rect.y;
-                        sameColorRect.insert(rect);
-                        //rects[color] = rect;
-                        //printf("%i" ,rect.x);
-                        //printf("%i" ,rect.y);
-                        //printf("%i" ,rect.width);
-                        //printf("%i " ,rect.height);
+                    if (isGood) {
+                        tempi++;
                     }
                 }
+
+                if (!alreadyChecked) {
+                    rect.height = tempi - rect.y;
+                    //sameColorRect.insert(rect);
+                    if (rects.contains(curr)) {
+                        rects[curr].insert(rect);
+                    } else {
+                        std::unordered_set<Rect> temp;
+                        temp.insert(rect);
+                        rects[curr] = temp;
+                    }
+                    // printf("%i" ,rect.x);
+                    // printf("%i" ,rect.y);
+                    // printf("%i" ,rect.width);
+                    // printf("%i " ,rect.height);
+                }
+
             }
         }
-        rects.insert({color, sameColorRect});
+        //rects.insert({color, sameColorRect});
     }
 
     void setRects() {
-        for (RGBA color: colorPalette) {
-            setColorRect((color));
-        }
+
+        setColorRect();
+
     }
 
     std::string hsvString(RGBA color) {
