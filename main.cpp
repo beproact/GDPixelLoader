@@ -249,13 +249,28 @@ public:
         y = 165;
     }
 
-    void tosi () {
+    std::string fullString () {
+        std::string output;
         for (RGBA color : colorPalette) {
             std::unordered_set<Rect> temp = rects[color];
             for (Rect rect : temp) {
-                std::cout << rectToString(rect, hsvString(color));
+                output += rectToString(rect, hsvString(color));
             }
         }
+        return output;
+    }
+
+    std::vector<std::string> splitByColorString () {
+        std::vector<std::string> output;
+        for (RGBA color : colorPalette) {
+            std::string curr;
+            std::unordered_set<Rect> temp = rects[color];
+            for (Rect rect : temp) {
+                curr += rectToString(rect, hsvString(color));
+            }
+            output.push_back(curr);
+        }
+        return output;
     }
 
 
@@ -265,8 +280,10 @@ public:
 int main() {
 
     GDRectLoader rect_loader = GDRectLoader(FILE_NAME);
-    rect_loader.tosi();
-
+    std::vector<std::string> list =  rect_loader.splitByColorString();
+    for (std::string string : list) {
+        std::cout << string << "\n";
+    }
     return 0;
 }
 
