@@ -1,9 +1,12 @@
 #include <iostream>
+
 #include <utility>
 #include <vector>
 #include <unordered_set>
 #include <unordered_map>
 #include <string>
+#include <filesystem>
+
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -152,9 +155,12 @@ private:
                         break;
                     }
                     for (int k = rect.x; k < rect.x + rect.width; k++) {
-                        checked.insert(testing);
+
                         if (pixels[tempi * width + k] != curr) {
                             isGood = 0;
+                        }
+                        if(isGood){
+                          checked.insert(testing);
                         }
                     }
                     if (isGood) {
@@ -260,12 +266,21 @@ public:
     std::vector<std::string> splitByColorString () {
         std::vector<std::string> output;
         for (RGBA color : colorPalette) {
+			printf("%02x", color.r);
+        	printf("%02x", color.g);
+        	printf("%02x", color.b);
+        	printf("%02x: ", color.a);
             std::string curr;
             std::unordered_set<Rect> temp = rects[color];
             for (Rect rect : temp) {
                 curr += rectToString(rect, hsvString(color));
+				printf("%i" ,rect.x);
+                printf("%i" ,rect.y);
+                printf("%i" ,rect.width);
+                printf("%i " ,rect.height);
             }
             output.push_back(curr);
+            std::cout <<"\n";
         }
         return output;
     }
@@ -275,4 +290,16 @@ public:
 };
 
 
+
+int main() {
+
+
+
+    GDRectLoader rect_loader = GDRectLoader("New Piskel(1).png");
+    std::vector<std::string> list =  rect_loader.splitByColorString();
+    // for (std::string string : list) {
+    //     std::cout << string << "\n";
+    // }
+    // return 0;
+}
 
