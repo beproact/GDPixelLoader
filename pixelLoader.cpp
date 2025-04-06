@@ -99,10 +99,10 @@ namespace loader {
         std::unordered_set<RGBA> colorPalette;
         std::unordered_map<RGBA, std::unordered_set<Rect>> rects;
         float size;
-        float x;
-        float y;
+        float xpos;
+        float ypos;
 
-        std::string rectToString(Rect rect, std::string hsvString) {
+        std::string rectToObjString(Rect rect, std::string hsvString) {
 
             //30 distance units = 1 size unit
             const float distSize = 30 * size;
@@ -111,10 +111,10 @@ namespace loader {
             output += std::to_string(SQUARE_ID);
 
             output += ",2,"; // x position
-            output += std::to_string((x + ((rect.x + 0.5 * rect.width) * distSize)));
+            output += std::to_string((xpos + ((rect.x + 0.5 * rect.width) * distSize)));
 
             output += ",3,"; // y position
-            output += std::to_string((y - ((rect.y + 0.5 * rect.height) * distSize)));
+            output += std::to_string((ypos - ((rect.y + 0.5 * rect.height) * distSize)));
 
             output += ",21,"; // color channel
             output += std::to_string(BLACK_ID);
@@ -130,12 +130,12 @@ namespace loader {
             output += ",129,"; // Y Scale
             output += std::to_string((rect.height * size));
 
-            output += ";"; // check to see if ending with semicolon is fine
+            //output += ";"; // check to see if ending with semicolon is fine
 
             return output;
         }
 
-        void setColorRect() {
+        void setRects() {
             std::unordered_set<Rect> checked;
 
 
@@ -193,11 +193,6 @@ namespace loader {
             //rects.insert({color, sameColorRect});
         }
 
-        void setRects() { // this used to actually do something
-
-            setColorRect();
-
-        }
 
         std::string hsvString(RGBA color) {
             float r = color.r / 255.0f;
@@ -260,20 +255,41 @@ namespace loader {
             }
             setRects();
             size = tsize;
-            x = tx;
-            y = ty;
+            xpos = tx;
+            ypos = ty;
         }
+
+        explicit GDRectLoader (std::string fileName, float tsize) : GDRectLoader(std::move(fileName), tsize, 0, 0) {}
+
 
         std::string fullString () {
             std::string output;
             for (RGBA color : colorPalette) {
                 std::unordered_set<Rect> temp = rects[color];
                 for (Rect rect : temp) {
-                    output += rectToString(rect, hsvString(color));
+                    output += rectToObjString(rect, hsvString(color)) + ";";
                 }
             }
             return output;
         }
+
+        std::string fullStringColorLinked(int* m_lastUsedLinkedID) {
+        	std::string output;
+            for(RGBA color : colorPalette) {
+            	std::unordered_set<Rect> temp = rects[color];
+                (*m_lastUsedLinkedID)++;
+                for (Rect rect : temp) {
+
+                	output += rectToObjString(rect, hsvString(color));
+                    if(temp.size()) {
+                    	output += ",108," + std::to_string(*m_lastUsedLinkedID);
+                    }
+                    output += ";";
+                }
+            }
+            return output;
+        }
+
 
         std::vector<std::string> splitByColorString () {
             std::vector<std::string> output;
@@ -281,7 +297,7 @@ namespace loader {
                 std::string curr;
                 std::unordered_set<Rect> temp = rects[color];
                 for (Rect rect : temp) {
-                    curr += rectToString(rect, hsvString(color));
+                    curr += rectToObjString(rect, hsvString(color)) + ";";
                 }
                 output.push_back(curr);
             }
@@ -295,11 +311,12 @@ namespace loader {
 
 using namespace loader;
 int main() {
-
-    GDRectLoader rect_loader = GDRectLoader("New Piskel(1).png");
-    std::vector<std::string> list =  rect_loader.splitByColorString();
-    // for (std::string string : list) {
-    //     std::cout << string << "\n";
-    // }
-    // return 0;
+	int a = 0;
+    GDRectLoader rect_loader = GDRectLoader("Crystal Shards.png", 1);
+    std::string list =  rect_loader.fullStringColorLinked(&a);
+    std::cout << list;
+     /*for (std::string string : list) {
+         std::cout << string << "\n";
+     }*/
+     return 0;
 }
