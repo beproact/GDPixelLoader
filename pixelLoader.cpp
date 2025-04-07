@@ -96,7 +96,7 @@ namespace loader {
 
     class GDRectLoader : ImageLoader {
     private:
-        std::unordered_set<RGBA> colorPalette;
+        //std::unordered_set<RGBA> colorPalette;
         std::unordered_map<RGBA, std::unordered_set<Rect>> rects;
         float size;
         float xpos;
@@ -114,7 +114,8 @@ namespace loader {
             output += std::to_string((xpos + ((rect.x + 0.5 * rect.width) * distSize)));
 
             output += ",3,"; // y position
-            output += std::to_string((ypos - ((rect.y + 0.5 * rect.height) * distSize)));
+            output += std::to_string((ypos - ((rect.y + 0.5 * rect.height) * distSize) - 90));
+            //no clue why i need to subtract 90
 
             output += ",21,"; // color channel
             output += std::to_string(BLACK_ID);
@@ -248,11 +249,11 @@ namespace loader {
 
     public:
         explicit GDRectLoader (std::string fileName, float tsize, float tx, float ty) : ImageLoader(std::move(fileName)) {
-            for (int i = 0; i < width * height; i++) { //Color Palette Construction
+            /*for (int i = 0; i < width * height; i++) { //Color Palette Construction
                 if (pixels[i].a != 0) {
                     colorPalette.insert(pixels[i]);
                 }
-            }
+            }*/ // Color Palette now just part of rects
             setRects();
             size = tsize;
             xpos = tx;
@@ -264,25 +265,42 @@ namespace loader {
 
         std::string fullString () {
             std::string output;
-            for (RGBA color : colorPalette) {
-                std::unordered_set<Rect> temp = rects[color];
-                for (Rect rect : temp) {
-                    output += rectToObjString(rect, hsvString(color)) + ";";
+            for (std::pair<RGBA, std::unordered_set<Rect>> pair : rects) {
+                //std::unordered_set<Rect> temp = pair.second;
+                for (Rect rect : pair.second) {
+                    output += rectToObjString(rect, hsvString(pair.first)) + ";";
                 }
             }
             return output;
         }
 
-        std::string fullStringColorLinked(int* m_lastUsedLinkedID) {
+        std::string fullStringColorLinked() {
         	std::string output;
-            for(RGBA color : colorPalette) {
-            	std::unordered_set<Rect> temp = rects[color];
-                (*m_lastUsedLinkedID)++;
-                for (Rect rect : temp) {
+            int m_lastUsedLinkedID = 0;
+            for(std::pair<RGBA, std::unordered_set<Rect>> pair : rects) {
+            	//std::unordered_set<Rect> temp = rects[color];
+                (m_lastUsedLinkedID)++;
+                for (Rect rect : pair.second) {
+                	output += rectToObjString(rect, hsvString(pair.first));
+                    if(pair.second.size()) {
+                    	output += ",108," + std::to_string(m_lastUsedLinkedID);
+                    }
+                    output += ";";
+                }
+            }
+            return output;
+        }
 
-                	output += rectToObjString(rect, hsvString(color));
-                    if(temp.size()) {
-                    	output += ",108," + std::to_string(*m_lastUsedLinkedID);
+        std::string fullStringLinked() {
+        	std::string output;
+            int m_lastUsedLinkedID = 0;
+            for(std::pair<RGBA, std::unordered_set<Rect>> pair : rects) {
+            	//std::unordered_set<Rect> temp = rects[pair.first];
+                (m_lastUsedLinkedID)++;
+                for (Rect rect : pair.second) {
+                	output += rectToObjString(rect, hsvString(pair.first));
+                    if(pair.second.size() > 1) {
+                    	output += ",108,1";
                     }
                     output += ";";
                 }
@@ -293,19 +311,16 @@ namespace loader {
 
         std::vector<std::string> splitByColorString () {
             std::vector<std::string> output;
-            for (RGBA color : colorPalette) {
+            for (std::pair<RGBA, std::unordered_set<Rect>> pair : rects) {
                 std::string curr;
-                std::unordered_set<Rect> temp = rects[color];
-                for (Rect rect : temp) {
-                    curr += rectToObjString(rect, hsvString(color)) + ";";
+                //std::unordered_set<Rect> temp = rects[color];
+                for (Rect rect : pair.second) {
+                    curr += rectToObjString(rect, hsvString(pair.first)) + ";";
                 }
                 output.push_back(curr);
             }
             return output;
         }
-
-
-
     };
 }
 
@@ -313,7 +328,7 @@ using namespace loader;
 int main() {
 	int a = 0;
     GDRectLoader rect_loader = GDRectLoader("Crystal Shards.png", 1);
-    std::string list =  rect_loader.fullStringColorLinked(&a);
+    std::string list =  rect_loader.fullStringColorLinked();
     std::cout << list;
      /*for (std::string string : list) {
          std::cout << string << "\n";
