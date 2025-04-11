@@ -1,10 +1,10 @@
 #include "pixelLoader.hpp"
-#include <string>
-
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 using namespace loader;
 
-ImageRGB::ImageRGB(std::string const &fileName) {
+ImageRGB::ImageRGB(std::string const& fileName, uint8_t const& colorCompression) {
     // constructor;
     int channels;
     height = 0;
@@ -13,13 +13,21 @@ ImageRGB::ImageRGB(std::string const &fileName) {
     pixels.reserve(height * width);
     for (int y = 0; y < height; y++) {
         // each row
+
         for (int x = 0; x < width; x++) {
             const unsigned char *offset = data + (y * width + x) * 4;
-            pixels.push_back({offset[0], offset[1], offset[2], offset[3]});
+            pixels.push_back({
+                roundToPowTwo(offset[0],colorCompression),
+                roundToPowTwo(offset[1],colorCompression),
+                roundToPowTwo(offset[2],colorCompression),
+                roundToPowTwo(offset[3],colorCompression)});
         }
     }
     stbi_image_free(data);
 }
+
+ImageRGB::ImageRGB(std::string const &fileName) : ImageRGB(fileName, 4){}
+
 
 
 std::string GDRectLoader::rectToObjString(Rect const &rect, std::string const &hsvString) const {
@@ -150,7 +158,7 @@ std::string GDRectLoader::hsvString(RGBA const &color) {
 
 
     //why the does this need to be here
-    if (h == 0 && (s > 0.98 && v > 0.6) || (s > 0.99 && v > 0.3)) {
+    if (h == 0 && (s >= 0.98 && v > 0.6) || (s >= 0.99 && v > 0.3) || (s >= 1.0 && v > 0.2)) {
         h++;
     }
 
@@ -164,8 +172,8 @@ std::string GDRectLoader::hsvString(RGBA const &color) {
     return output;
 }
 
-GDRectLoader::GDRectLoader(::std::string const &fileName, float const tsize, float const tx, float const ty): rects(),
-    image(fileName) {
+GDRectLoader::GDRectLoader(std::string const &fileName, float const tsize, float const tx, float const ty, uint8_t const& colorCompression): rects(),
+    image(fileName, colorCompression) {
     //image = ImageRGB(fileName);
     setRects();
     size = tsize;
@@ -173,7 +181,7 @@ GDRectLoader::GDRectLoader(::std::string const &fileName, float const tsize, flo
     ypos = ty;
 }
 
-GDRectLoader::GDRectLoader(std::string const &fileName, float tsize) : GDRectLoader(fileName, tsize, 0, 0) {}
+GDRectLoader::GDRectLoader(std::string const &fileName, float tsize, uint8_t const& colorCompression) : GDRectLoader(fileName, tsize, 0, 0, colorCompression) {}
 
 std::string GDRectLoader::fullString() const {
     std::string output;
@@ -232,7 +240,11 @@ std::vector<std::string> GDRectLoader::splitByColorString() const {
 
 int main() {
     int a = 0;
-    GDRectLoader rect_loader = GDRectLoader("Crystal Shards.png", 1);
+    GDRectLoader rect_loader = GDRectLoader("ben.png", 0.125, 5);
     std::string list = rect_loader.fullStringColorLinked();
     std::cout << list;
+    /*for (uint8_t i = 0; i < 255; i++) {
+        std::cout << std::to_string(ImageRGB::roundToPowTwo(i, 7)) << " ";
+    }*/
+
 }

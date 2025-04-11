@@ -5,9 +5,8 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <string>
+#include <cstdint>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
 
 namespace loader {
     struct RGBA {
@@ -60,6 +59,18 @@ namespace loader{
         int height;
         int width;
         std::vector<RGBA> pixels;
+
+        //terrible code
+        static uint8_t roundToPowTwo (uint8_t const& num, int const& pow) {
+            if (num > 255 - (1 << pow - 1)) { //255 - 2^num
+                return 255;
+            }
+            return (((num) & (~0 << pow)));
+            // let me do my bit operations it makes me feel cool
+            // I don't care if it's actually fast
+        }
+        // range from 0-8 for color compression
+        explicit ImageRGB (std::string const& fileName, uint8_t const& colorCompression);
         explicit ImageRGB (std::string const& fileName);
     };
 
@@ -77,8 +88,8 @@ namespace loader{
         void setRects();
         static std::string hsvString(RGBA const& color);
     public:
-        explicit GDRectLoader (std::string const& fileName, float const tsize, float const tx, float const ty);
-        explicit GDRectLoader (std::string const& fileName, float tsize);
+        explicit GDRectLoader (std::string const& fileName, float const tsize, float const tx, float const ty, uint8_t const& colorCompression);
+        explicit GDRectLoader (std::string const& fileName, float tsize, uint8_t const& colorCompression);
         std::string fullString () const;
         std::string fullStringColorLinked() const;
         std::string fullStringLinked() const;
