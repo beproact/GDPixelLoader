@@ -1,5 +1,4 @@
-#ifndef PIXELLOADER_H
-#define PIXELLOADER_H
+#pragma once
 
 #include <iostream>
 #include <vector>
@@ -21,12 +20,6 @@ namespace loader {
                 return true;
             return false;
         };
-    } ;
-
-    struct HSV {
-        uint8_t h;
-        uint8_t s;
-        uint8_t v;
     } ;
 
     struct Rect{
@@ -74,7 +67,6 @@ namespace loader{
         static constexpr int SQUARE_ID = 211;
         static constexpr int BLACK_ID = 1010;
 
-        //std::unordered_set<RGBA> colorPalette;
         std::unordered_map<RGBA, std::unordered_set<Rect>> rects;
         ImageRGB image;
         double size;
@@ -94,4 +86,3 @@ namespace loader{
     };
 }
 
-#endif //PIXELLOADER_H
