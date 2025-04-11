@@ -1,111 +1,31 @@
 #pragma once
-#include <iostream>
-#include <utility>
-#include <vector>
-#include <unordered_set>
-#include <unordered_map>
+#include "pixelLoader.hpp"
 #include <string>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
 
-#define SQUARE_ID 211
-#define BLACK_ID 1010
+using namespace loader;
 
-
-
-namespace loader{
-    struct RGBA {
-        uint8_t r;
-        uint8_t g;
-        uint8_t b;
-        uint8_t a;
-        bool operator==(const RGBA& other) const {
-            if (r == other.r && g == other.g && b == other.b && a == other.a)
-                return true;
-            return false;
-        };
-    } ;
-
-    struct HSV {
-        uint8_t h;
-        uint8_t s;
-        uint8_t v;
-    } ;
-
-    struct Rect{
-        int x;
-        int y;
-        int height;
-        int width;
-
-        bool operator==(const Rect& other) const {
-            if (x == other.x && y == other.y && height == other.height && width == other.width)
-                return true;
-            return false;
-        };
-    } ;
-}
-
-//there has to be a better way of doing this
-namespace std {
-    template<> struct hash<loader::Rect>
-    {
-        ::std::size_t operator()(const loader::Rect& r) const noexcept
-        {
-            return r.height *37 + r.width + r.x * 37 * 37 + r.y * 37 * 37 * 37; // make better hash
-        }
-    };
-
-    template<> struct hash<loader::RGBA>
-    {
-        ::std::size_t operator()(const loader::RGBA& r) const noexcept
-        {
-            return r.r *37 + r.g + r.b * 37 * 37 + r.a * 37 * 37 * 37;
-        }
-    };
-}
-
-
-namespace loader {
-    class ImageLoader {
-    protected:
-        int height;
-        int width;
-        std::vector<RGBA> pixels;
-    public:
-        explicit ImageLoader (std::string const fileName) { // constructor;
-            int channels;
-            height = 0;
-            width = 0;
-            unsigned char* data = stbi_load(fileName.c_str(), &width, &height, &channels, 4);
-            pixels.reserve(height * width);
-            for (int y = 0; y < height; y++) { // each row
-                for (int x = 0; x < width; x++) {// each  4 at a time since each pixel is represented by 4 chars
-                    const unsigned char* offset = data + (y * width + x) * 4;
-                    //printf("%i", (y * *width + x) * 4);
-                    pixels.push_back({offset[0], offset[1], offset[2], offset[3]});
-                    //printf("%i %i  ", x, y);
-                }
+ImageRGB::ImageRGB (std::string const& fileName) { // constructor;
+        int channels;
+        height = 0;
+        width = 0;
+        unsigned char* data = stbi_load(fileName.c_str(), &width, &height, &channels, 4);
+        pixels.reserve(height * width);
+        for (int y = 0; y < height; y++) { // each row
+            for (int x = 0; x < width; x++) {// each  4 at a time since each pixel is represented by 4 chars
+                const unsigned char* offset = data + (y * width + x) * 4;
+                //printf("%i", (y * *width + x) * 4);
+                pixels.push_back({offset[0], offset[1], offset[2], offset[3]});
+                //printf("%i %i  ", x, y);
             }
-            stbi_image_free(data);
         }
+        stbi_image_free(data);
+    }
 
-
-    };
-
-    class GDRectLoader : ImageLoader {
-    private:
-        //std::unordered_set<RGBA> colorPalette;
-        std::unordered_map<RGBA, std::unordered_set<Rect>> rects;
-        float size;
-        float xpos;
-        float ypos;
-
-        std::string rectToObjString(Rect rect, std::string hsvString) {
+std::string GDRectLoader::rectToObjString(Rect const& rect, std::string const& hsvString) const {
 
             //30 distance units = 1 size unit
-            const float distSize = 30 * size;
+            const double distSize = 30 * size;
             std::string output;
             output += "1,"; //Object ID
             output += std::to_string(SQUARE_ID);
@@ -136,17 +56,21 @@ namespace loader {
             return output;
         }
 
-        void setRects() {
+void GDRectLoader::setRects() {
             std::unordered_set<Rect> checked;
 
 
-            RGBA curr = pixels[0];
-            for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; ) {
-                    curr = pixels[y * width + x];
+            RGBA curr = image.pixels[0];
+            for (int y = 0; y < image.height; y++) {
+                for (int x = 0; x < image.width; ) {
+                    curr = image.pixels[y * image.width + x];
+
                     Rect rect = {x, y, 0, 0};
-                    while (pixels[y * width + x] == curr && x < width) {
+                    while (image.pixels[y * image.width + x] == curr && x < image.width) {
                         x++;
+                    }
+                    if(curr.a == 0) {
+                    	continue;
                     }
                     rect.width = x - rect.x;
 
@@ -154,14 +78,14 @@ namespace loader {
                     char isGood = 1;
                     char alreadyChecked = 0;
 
-                    while (isGood && (tempi < height)) {
+                    while (isGood && (tempi < image.height)) {
                         Rect testing = {rect.x, tempi, 1, rect.width };
                         if (checked.contains(testing)) {
                             alreadyChecked = 1;
                             break;
                         }
                         for (int k = rect.x; k < rect.x + rect.width; k++) {
-                            if (pixels[tempi * width + k] != curr) {
+                            if (image.pixels[tempi * image.width + k] != curr) {
                                 isGood = 0;
                                 break;
                                 //can I break here???
@@ -194,21 +118,24 @@ namespace loader {
             //rects.insert({color, sameColorRect});
         }
 
+std::string GDRectLoader::hsvString(RGBA const& color) {
+            double const r = color.r / 255.0;
+            double const g = color.g / 255.0;
+            double const b = color.b / 255.0;
 
-        std::string hsvString(RGBA color) {
-            float r = color.r / 255.0f;
-            float g = color.g / 255.0f;
-            float b = color.b / 255.0f;
+            double const cMax = std::max(r, std::max(g,b));
+            double const cMin = std::min(r, std::min(g,b));
 
-            float cMax = std::max(r, std::max(g,b));
-            float cMin = std::min(r, std::min(g,b));
+            double const del = cMax - cMin;
 
-            float del = cMax - cMin;
-            float s = 0.0;
+            double h;
+            double s = 0.0;
+            double v = cMax;
+
             if (cMax != 0.0) {
                 s = del/cMax;
             }
-            float h;
+
             if (r >= cMax) {
                 h = (g-b) / del;
             } else if (g >= cMax) {
@@ -224,16 +151,13 @@ namespace loader {
                 h+=6;
             }
             h+=3;
-            h = fmodf(h, 6); // now is value from 0 - 6. We want a value from -180 to 180
+            h = fmodf(h, 6); // now is value from 0 to 6. We want a value from -180 to 180
             h*=60;
             h-=180;
 
 
-
-            float v = cMax;
-
-            //why the fuck does this need to be here what is rob smoking
-            if(h == 0 && s > 0.98 && v > 0.6){
+            //why the does this need to be
+            if(h == 0 && (s > 0.98 && v > 0.6) || (s >0.99 && v > 0.3 )){
                 h++;
             }
 
@@ -247,23 +171,18 @@ namespace loader {
             return output;
         }
 
-    public:
-        explicit GDRectLoader (std::string fileName, float tsize, float tx, float ty) : ImageLoader(std::move(fileName)) {
-            /*for (int i = 0; i < width * height; i++) { //Color Palette Construction
-                if (pixels[i].a != 0) {
-                    colorPalette.insert(pixels[i]);
-                }
-            }*/ // Color Palette now just part of rects
+GDRectLoader::GDRectLoader (::std::string const& fileName, float const tsize, float const tx, float const ty): rects(),
+            image(fileName) {
+            //image = ImageRGB(fileName);
             setRects();
             size = tsize;
             xpos = tx;
             ypos = ty;
         }
 
-        explicit GDRectLoader (std::string fileName, float tsize) : GDRectLoader(std::move(fileName), tsize, 0, 0) {}
+GDRectLoader::GDRectLoader (std::string const& fileName, float tsize) : GDRectLoader(fileName, tsize, 0, 0) {}
 
-
-        std::string fullString () {
+std::string GDRectLoader::fullString () const {
             std::string output;
             for (std::pair<RGBA, std::unordered_set<Rect>> pair : rects) {
                 //std::unordered_set<Rect> temp = pair.second;
@@ -274,7 +193,7 @@ namespace loader {
             return output;
         }
 
-        std::string fullStringColorLinked() {
+std::string GDRectLoader::fullStringColorLinked() const {
         	std::string output;
             int m_lastUsedLinkedID = 0;
             for(std::pair<RGBA, std::unordered_set<Rect>> pair : rects) {
@@ -282,7 +201,7 @@ namespace loader {
                 (m_lastUsedLinkedID)++;
                 for (Rect rect : pair.second) {
                 	output += rectToObjString(rect, hsvString(pair.first));
-                    if(pair.second.size()) {
+                    if(!pair.second.empty()) {
                     	output += ",108," + std::to_string(m_lastUsedLinkedID);
                     }
                     output += ";";
@@ -291,7 +210,7 @@ namespace loader {
             return output;
         }
 
-        std::string fullStringLinked() {
+std::string GDRectLoader::fullStringLinked() const {
         	std::string output;
             int m_lastUsedLinkedID = 0;
             for(std::pair<RGBA, std::unordered_set<Rect>> pair : rects) {
@@ -308,8 +227,7 @@ namespace loader {
             return output;
         }
 
-
-        std::vector<std::string> splitByColorString () {
+std::vector<std::string> GDRectLoader::splitByColorString () const {
             std::vector<std::string> output;
             for (std::pair<RGBA, std::unordered_set<Rect>> pair : rects) {
                 std::string curr;
@@ -321,10 +239,8 @@ namespace loader {
             }
             return output;
         }
-    };
-}
+;
 
-using namespace loader;
 int main() {
 	int a = 0;
     GDRectLoader rect_loader = GDRectLoader("Crystal Shards.png", 1);
