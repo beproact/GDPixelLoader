@@ -62,6 +62,9 @@ namespace loader{
 
         //terrible code
         static uint8_t roundToPowTwo (uint8_t const& num, int const& pow) {
+            if (!pow) {
+                return num;
+            }
             if (num > 255 - (1 << pow - 1)) { //255 - 2^num
                 return 255;
             }
