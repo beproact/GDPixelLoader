@@ -1,15 +1,11 @@
 # ninja log v6
 28	7216	7654449543595156	CMakeFiles/PixelLoader.dir/main.cpp.obj	66a1b5db4e3797cd
-114	8076	7660570123477045	CMakeFiles/PixelLoader.dir/pixelLoader.cpp.obj	89f66b93dcaf989a
-8078	8697	7660570203106860	PixelLoader.exe	cf0fbab081d75562
-111	1446	7660464143592998	build.ninja	d342c4109984259c
-428	10936	7660570964549494	CMakeFiles/PixelLoader.dir/pixelLoader.cpp.obj	89f66b93dcaf989a
-10938	11586	7660571069658776	PixelLoader.exe	cf0fbab081d75562
-211	9528	7660572110145743	CMakeFiles/PixelLoader.dir/pixelLoader.cpp.obj	89f66b93dcaf989a
-9531	10126	7660572203342981	PixelLoader.exe	cf0fbab081d75562
-254	10848	7660572683980718	CMakeFiles/PixelLoader.dir/pixelLoader.cpp.obj	89f66b93dcaf989a
-10850	11477	7660572789949712	PixelLoader.exe	cf0fbab081d75562
-108	9198	7660574262817118	CMakeFiles/PixelLoader.dir/pixelLoader.cpp.obj	89f66b93dcaf989a
-9200	9927	7660574353735198	PixelLoader.exe	cf0fbab081d75562
 109	9531	7660604404170413	CMakeFiles/PixelLoader.dir/pixelLoader.cpp.obj	89f66b93dcaf989a
 9532	10211	7660604498398405	PixelLoader.exe	cf0fbab081d75562
+111	1446	7661000006214476	build.ninja	d342c4109984259c
+193	3128	7661005541713523	CMakeFiles/PixelLoader.dir/main.cpp.obj	66a1b5db4e3797cd
+180	8829	7661005541591226	CMakeFiles/PixelLoader.dir/pixelLoader.cpp.obj	89f66b93dcaf989a
+8829	13982	7661005628077875	PixelLoader.exe	5f130ef80a8162ae
+85	2458	7661013302505161	CMakeFiles/PixelLoader.dir/main.cpp.obj	66a1b5db4e3797cd
+73	5263	7661013302396069	CMakeFiles/PixelLoader.dir/pixelLoader.cpp.obj	89f66b93dcaf989a
+5264	5983	7661013354293271	PixelLoader.exe	5f130ef80a8162ae

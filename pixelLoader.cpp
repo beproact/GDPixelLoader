@@ -4,6 +4,18 @@
 
 using namespace loader;
 
+uint8_t ImageRGB::roundToPowTwo (uint8_t const num, int const pow) {
+    if (!pow) {
+        return num;
+    }
+    if (num > 255 - (1 << pow - 1)) { //255 - 2^num
+        return 255;
+    }
+    return (((num) & (~0 << pow)));
+    // let me do my bit operations it makes me feel cool
+    // I don't care if it's actually fast
+}
+
 ImageRGB::ImageRGB(std::string const& fileName, uint8_t const& colorCompression) {
     // constructor;
     int channels;
@@ -30,7 +42,7 @@ ImageRGB::ImageRGB(std::string const &fileName) : ImageRGB(fileName, 4){}
 
 
 
-std::string GDRectLoader::rectToObjString(Rect const &rect, std::string const &hsvString) const {
+std::string GDRects::rectToObjString(Rect const &rect, std::string const &hsvString) const {
     //30 distance units = 1 size unit
     const double distSize = 30 * size;
     std::string output;
@@ -61,7 +73,7 @@ std::string GDRectLoader::rectToObjString(Rect const &rect, std::string const &h
     return output;
 }
 
-void GDRectLoader::setRects() {
+void GDRects::setRects() {
     std::unordered_set<Rect> checked;
 
     for (int y = 0; y < image.height; y++) {
@@ -119,7 +131,7 @@ void GDRectLoader::setRects() {
     }
 }
 
-std::string GDRectLoader::hsvString(RGBA const &color) {
+std::string GDRects::hsvString(RGBA const &color) {
     double const r = color.r / 255.0;
     double const g = color.g / 255.0;
     double const b = color.b / 255.0;
@@ -172,7 +184,7 @@ std::string GDRectLoader::hsvString(RGBA const &color) {
     return output;
 }
 
-GDRectLoader::GDRectLoader(std::string const &fileName, float const tsize, float const tx, float const ty, uint8_t const& colorCompression): rects(),
+GDRects::GDRects(std::string const &fileName, float const tsize, float const tx, float const ty, uint8_t const& colorCompression): rects(),
     image(fileName, colorCompression) {
     //image = ImageRGB(fileName);
     setRects();
@@ -181,9 +193,9 @@ GDRectLoader::GDRectLoader(std::string const &fileName, float const tsize, float
     ypos = ty;
 }
 
-GDRectLoader::GDRectLoader(std::string const &fileName, float tsize, uint8_t const& colorCompression) : GDRectLoader(fileName, tsize, 0, 0, colorCompression) {}
+GDRects::GDRects(std::string const &fileName, float tsize, uint8_t const& colorCompression) : GDRects(fileName, tsize, 0, 0, colorCompression) {}
 
-std::string GDRectLoader::fullString() const {
+std::string GDRects::fullString() const {
     std::string output;
     for (std::pair<RGBA, std::unordered_set<Rect> > pair: rects) {
         for (Rect rect: pair.second) {
@@ -193,7 +205,7 @@ std::string GDRectLoader::fullString() const {
     return output;
 }
 
-std::string GDRectLoader::fullStringColorLinked() const {
+std::string GDRects::fullStringColorLinked() const {
     std::string output;
     int m_lastUsedLinkedID = 0;
     for (std::pair<RGBA, std::unordered_set<Rect> > pair: rects) {
@@ -209,7 +221,7 @@ std::string GDRectLoader::fullStringColorLinked() const {
     return output;
 }
 
-std::string GDRectLoader::fullStringLinked() const {
+std::string GDRects::fullStringLinked() const {
     std::string output;
     int m_lastUsedLinkedID = 0;
     for (std::pair<RGBA, std::unordered_set<Rect> > pair: rects) {
@@ -225,7 +237,7 @@ std::string GDRectLoader::fullStringLinked() const {
     return output;
 }
 
-std::vector<std::string> GDRectLoader::splitByColorString() const {
+std::vector<std::string> GDRects::splitByColorString() const {
     std::vector<std::string> output;
     for (std::pair<RGBA, std::unordered_set<Rect> > pair: rects) {
         std::string curr;
@@ -235,16 +247,4 @@ std::vector<std::string> GDRectLoader::splitByColorString() const {
         output.push_back(curr);
     }
     return output;
-}
-;
-
-int main() {
-    /*int a = 0;
-    GDRectLoader rect_loader = GDRectLoader("ben.png", 0.125, 5);
-    std::string list = rect_loader.fullStringColorLinked();
-    std::cout << list;*/
-    for (uint8_t i = 0; i < 255; i++) {
-        std::cout << std::to_string(ImageRGB::roundToPowTwo(i, 0)) << " ";
-    }
-
 }

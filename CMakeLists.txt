@@ -4,4 +4,5 @@ project(PixelLoader)
 set(CMAKE_CXX_STANDARD 20)
 
 add_executable(PixelLoader PixelLoader.cpp
-        pixelLoader.hpp)
+        pixelLoader.hpp
+        main.cpp)
