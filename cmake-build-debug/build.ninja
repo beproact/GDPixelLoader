@@ -52,12 +52,14 @@ build cmake_object_order_depends_target_PixelLoader: phony || .
 build CMakeFiles/PixelLoader.dir/pixelLoader.cpp.obj: CXX_COMPILER__PixelLoader_unscanned_Debug C$:/Users/snappymink/CLionProjects/PixelLoader/pixelLoader.cpp || cmake_object_order_depends_target_PixelLoader
   DEP_FILE = CMakeFiles\PixelLoader.dir\pixelLoader.cpp.obj.d
   FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
+  INCLUDES = -IC:/Users/snappymink/CLionProjects/PixelLoader/include
   OBJECT_DIR = CMakeFiles\PixelLoader.dir
   OBJECT_FILE_DIR = CMakeFiles\PixelLoader.dir
 
 build CMakeFiles/PixelLoader.dir/main.cpp.obj: CXX_COMPILER__PixelLoader_unscanned_Debug C$:/Users/snappymink/CLionProjects/PixelLoader/main.cpp || cmake_object_order_depends_target_PixelLoader
   DEP_FILE = CMakeFiles\PixelLoader.dir\main.cpp.obj.d
   FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
+  INCLUDES = -IC:/Users/snappymink/CLionProjects/PixelLoader/include
   OBJECT_DIR = CMakeFiles\PixelLoader.dir
   OBJECT_FILE_DIR = CMakeFiles\PixelLoader.dir
 

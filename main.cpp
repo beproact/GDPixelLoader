@@ -1,15 +1,22 @@
-//
-// Created by snappymink on 4/11/2025.
-//
-#include "pixelLoader.hpp"
+
+#include "gdPixelLoader.hpp"
+#include "clipboardxx.hpp"
 
 using namespace loader;
 int main() {
-    /*int a = 0;
-    GDRectLoader rect_loader = GDRectLoader("ben.png", 0.125, 5);
+    clipboardxx::clipboard clipboard;
+    std::string filePath;
+
+    std::cout << "Type the file name or path:";
+    std::cin >> filePath;
+
+
+    GDRects rect_loader = GDRects(filePath, 0.125, 5);
     std::string list = rect_loader.fullStringColorLinked();
-    std::cout << list;*/
-    for (uint8_t i = 0; i < 255; i++) {
-        std::cout << std::to_string(ImageRGB::roundToPowTwo(i, 0)) << " ";
+    if (list.empty()) {
+        std::cout << "Failed to read file \n";
+        return 1;
     }
+    std::cout << "GD Level String has been copied to your clipboard. \n";
+    clipboard << list;
 }

@@ -62,7 +62,7 @@ namespace loader{
 
         static uint8_t roundToPowTwo (uint8_t num, int pow);
         // range from 0-8 for color compression
-        explicit ImageRGB (std::string const& fileName, uint8_t const& colorCompression);
+        explicit ImageRGB (std::string const& fileName, uint8_t colorCompression);
         explicit ImageRGB (std::string const& fileName);
     };
 
@@ -80,8 +80,8 @@ namespace loader{
         void setRects();
         static std::string hsvString(RGBA const& color);
     public:
-        explicit GDRects (std::string const& fileName, float const tsize, float const tx, float const ty, uint8_t const& colorCompression);
-        explicit GDRects (std::string const& fileName, float tsize, uint8_t const& colorCompression);
+        explicit GDRects (std::string const& fileName, float tsize, float tx, float ty, uint8_t colorCompression);
+        explicit GDRects (std::string const& fileName, float tsize, uint8_t colorCompression);
         std::string fullString () const;
         std::string fullStringColorLinked() const;
         std::string fullStringLinked() const;

@@ -1,14 +1,16 @@
-#include "pixelLoader.hpp"
+#include "gdPixelLoader.hpp"
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 using namespace loader;
 
-uint8_t ImageRGB::roundToPowTwo (uint8_t const num, int const pow) {
+uint8_t ImageRGB::roundToPowTwo(uint8_t const num, int const pow) {
     if (!pow) {
         return num;
     }
-    if (num > 255 - (1 << pow - 1)) { //255 - 2^num
+    if (num > 255 - (1 << pow - 1)) {
+        //255 - 2^num
         return 255;
     }
     return (((num) & (~0 << pow)));
@@ -16,8 +18,7 @@ uint8_t ImageRGB::roundToPowTwo (uint8_t const num, int const pow) {
     // I don't care if it's actually fast
 }
 
-ImageRGB::ImageRGB(std::string const& fileName, uint8_t const& colorCompression) {
-    // constructor;
+ImageRGB::ImageRGB(std::string const& fileName, uint8_t const colorCompression) {
     int channels;
     height = 0;
     width = 0;
@@ -25,21 +26,20 @@ ImageRGB::ImageRGB(std::string const& fileName, uint8_t const& colorCompression)
     pixels.reserve(height * width);
     for (int y = 0; y < height; y++) {
         // each row
-
         for (int x = 0; x < width; x++) {
             const unsigned char *offset = data + (y * width + x) * 4;
             pixels.push_back({
-                roundToPowTwo(offset[0],colorCompression),
-                roundToPowTwo(offset[1],colorCompression),
-                roundToPowTwo(offset[2],colorCompression),
-                roundToPowTwo(offset[3],colorCompression)});
+                roundToPowTwo(offset[0], colorCompression),
+                roundToPowTwo(offset[1], colorCompression),
+                roundToPowTwo(offset[2], colorCompression),
+                roundToPowTwo(offset[3], colorCompression)
+            });
         }
     }
     stbi_image_free(data);
 }
 
-ImageRGB::ImageRGB(std::string const &fileName) : ImageRGB(fileName, 4){}
-
+ImageRGB::ImageRGB(std::string const& fileName) : ImageRGB(fileName, 4) {}
 
 
 std::string GDRects::rectToObjString(Rect const &rect, std::string const &hsvString) const {
@@ -184,8 +184,8 @@ std::string GDRects::hsvString(RGBA const &color) {
     return output;
 }
 
-GDRects::GDRects(std::string const &fileName, float const tsize, float const tx, float const ty, uint8_t const& colorCompression): rects(),
-    image(fileName, colorCompression) {
+GDRects::GDRects(std::string const &fileName, float const tsize, float const tx, float const ty,
+                 uint8_t const colorCompression): image(fileName, colorCompression) {
     //image = ImageRGB(fileName);
     setRects();
     size = tsize;
@@ -193,7 +193,9 @@ GDRects::GDRects(std::string const &fileName, float const tsize, float const tx,
     ypos = ty;
 }
 
-GDRects::GDRects(std::string const &fileName, float tsize, uint8_t const& colorCompression) : GDRects(fileName, tsize, 0, 0, colorCompression) {}
+GDRects::GDRects(std::string const &fileName, float tsize, uint8_t const colorCompression) : GDRects(
+    fileName, tsize, 0, 0, colorCompression) {
+}
 
 std::string GDRects::fullString() const {
     std::string output;
