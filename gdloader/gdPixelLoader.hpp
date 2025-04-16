@@ -55,12 +55,12 @@ namespace std {
 
 namespace loader{
     class ImageRGB {
+        static uint8_t roundToPowTwo (uint8_t num, int pow);
     public:
         int height;
         int width;
         std::vector<RGBA> pixels;
 
-        static uint8_t roundToPowTwo (uint8_t num, int pow);
         // range from 0-8 for color compression
         explicit ImageRGB (std::string const& fileName, uint8_t colorCompression);
         explicit ImageRGB (std::string const& fileName);
@@ -71,17 +71,17 @@ namespace loader{
         static constexpr int BLACK_ID = 1010;
 
         std::unordered_map<RGBA, std::unordered_set<Rect>> rects;
-        ImageRGB image;
+        ImageRGB* image;
         double size;
-        double xpos;
-        double ypos;
+        double mX;
+        double mY;
 
         std::string rectToObjString(Rect const& rect, std::string const& hsvString) const;
         void setRects();
         static std::string hsvString(RGBA const& color);
     public:
-        explicit GDRects (std::string const& fileName, float tsize, float tx, float ty, uint8_t colorCompression);
-        explicit GDRects (std::string const& fileName, float tsize, uint8_t colorCompression);
+        explicit GDRects(ImageRGB* pImage, float pSize, float pX, float pY);
+        explicit GDRects(ImageRGB* pImage, float pSize);
         std::string fullString () const;
         std::string fullStringColorLinked() const;
         std::string fullStringLinked() const;

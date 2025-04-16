@@ -1,4 +1,3 @@
-
 #include "gdPixelLoader.hpp"
 #include "clipboardxx.hpp"
 
@@ -9,9 +8,9 @@ int main() {
 
     std::cout << "Type the file name or path:";
     std::cin >> filePath;
+    ImageRGB img = ImageRGB(filePath, 5);
 
-
-    GDRects rect_loader = GDRects(filePath, 0.125, 5);
+    GDRects rect_loader = GDRects(&img, 0.125);
     std::string list = rect_loader.fullStringColorLinked();
     if (list.empty()) {
         std::cout << "Failed to read file \n";

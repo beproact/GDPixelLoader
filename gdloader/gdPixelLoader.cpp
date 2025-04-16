@@ -10,10 +10,9 @@ uint8_t ImageRGB::roundToPowTwo(uint8_t const num, int const pow) {
         return num;
     }
     if (num > 255 - (1 << pow - 1)) {
-        //255 - 2^num
         return 255;
     }
-    return (((num) & (~0 << pow)));
+    return num & ~0 << pow;
     // let me do my bit operations it makes me feel cool
     // I don't care if it's actually fast
 }
@@ -39,8 +38,7 @@ ImageRGB::ImageRGB(std::string const& fileName, uint8_t const colorCompression) 
     stbi_image_free(data);
 }
 
-ImageRGB::ImageRGB(std::string const& fileName) : ImageRGB(fileName, 4) {}
-
+ImageRGB::ImageRGB(std::string const& fileName) : ImageRGB(fileName, 0) {}
 
 std::string GDRects::rectToObjString(Rect const &rect, std::string const &hsvString) const {
     //30 distance units = 1 size unit
@@ -50,11 +48,11 @@ std::string GDRects::rectToObjString(Rect const &rect, std::string const &hsvStr
     output += std::to_string(SQUARE_ID);
 
     output += ",2,"; // x position
-    output += std::to_string((xpos + ((rect.x + 0.5 * rect.width) * distSize)));
+    output += std::to_string((mX + ((rect.x + 0.5 * rect.width) * distSize)));
 
     output += ",3,"; // y position
-    output += std::to_string((ypos - ((rect.y + 0.5 * rect.height) * distSize) - 90));
-    //no clue why I need to subtract 90 but I do
+    output += std::to_string((mY - ((rect.y + 0.5 * rect.height) * distSize) - 90));
+    //no clue why I need to subtract 90, but I do
 
     output += ",21,"; // color channel
     output += std::to_string(BLACK_ID);
@@ -76,12 +74,12 @@ std::string GDRects::rectToObjString(Rect const &rect, std::string const &hsvStr
 void GDRects::setRects() {
     std::unordered_set<Rect> checked;
 
-    for (int y = 0; y < image.height; y++) {
-        for (int x = 0; x < image.width;) {
-            RGBA curr = image.pixels[y * image.width + x];
+    for (int y = 0; y < image->height; y++) {
+        for (int x = 0; x < image->width;) {
+            RGBA curr = image->pixels[y * image->width + x];
 
             Rect rect = {x, y, 0, 0};
-            while (image.pixels[y * image.width + x] == curr && x < image.width) {
+            while (image->pixels[y * image->width + x] == curr && x < image->width) {
                 x++;
             }
             if (curr.a == 0) {
@@ -93,14 +91,14 @@ void GDRects::setRects() {
             char isGood = 1;
             char alreadyChecked = 0;
 
-            while (isGood && (tempi < image.height)) {
+            while (isGood && (tempi < image->height)) {
                 Rect testing = {rect.x, tempi, 1, rect.width};
                 if (checked.contains(testing)) {
                     alreadyChecked = 1;
                     break;
                 }
                 for (int k = rect.x; k < rect.x + rect.width; k++) {
-                    if (image.pixels[tempi * image.width + k] != curr) {
+                    if (image->pixels[tempi * image->width + k] != curr) {
                         isGood = 0;
                         break;
                         //can I break here???
@@ -184,17 +182,16 @@ std::string GDRects::hsvString(RGBA const &color) {
     return output;
 }
 
-GDRects::GDRects(std::string const &fileName, float const tsize, float const tx, float const ty,
-                 uint8_t const colorCompression): image(fileName, colorCompression) {
-    //image = ImageRGB(fileName);
+GDRects::GDRects(ImageRGB* pImage, float const pSize, float const pX, float const pY) {
+    image = pImage;
     setRects();
-    size = tsize;
-    xpos = tx;
-    ypos = ty;
+    size = pSize;
+    mX = pX;
+    mY = pY;
 }
 
-GDRects::GDRects(std::string const &fileName, float tsize, uint8_t const colorCompression) : GDRects(
-    fileName, tsize, 0, 0, colorCompression) {
+
+GDRects::GDRects(ImageRGB* pImage, float const pSize) : GDRects(pImage, pSize, 0, 0) {
 }
 
 std::string GDRects::fullString() const {

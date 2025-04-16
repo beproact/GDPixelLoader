@@ -3,8 +3,9 @@ project(PixelLoader)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(PixelLoader gdPixelLoader.cpp
-        gdPixelLoader.hpp
+add_executable(PixelLoader gdloader/gdPixelLoader.cpp
+        gdloader/gdPixelLoader.hpp
         main.cpp)
 
 target_include_directories(PixelLoader PRIVATE include)
+target_include_directories(PixelLoader PRIVATE gdloader)
