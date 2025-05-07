@@ -190,8 +190,7 @@ GDRects::GDRects(ImageRGB* pImage, float const pSize, float const pX, float cons
 }
 
 
-GDRects::GDRects(ImageRGB* pImage, float const pSize) : GDRects(pImage, pSize, 0, 0) {
-}
+GDRects::GDRects(ImageRGB* pImage, float const pSize) : GDRects(pImage, pSize, 0, 0) {}
 
 std::string GDRects::fullString() const {
     std::string output;
