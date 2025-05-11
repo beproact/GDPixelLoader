@@ -71,7 +71,7 @@ std::string GDRects::rectToObjString(Rect const &rect, std::string const &hsvStr
     return output;
 }
 
-void GDRects::setRects(ImageRGB* const image) {
+void GDRects::setRects() {
     std::unordered_set<Rect> checked;
 
     for (int y = 0; y < image->height; y++) {
@@ -101,6 +101,7 @@ void GDRects::setRects(ImageRGB* const image) {
                     if (image->pixels[tempi * image->width + k] != curr) {
                         isGood = 0;
                         break;
+                        //can I break here???
                     }
                     checked.insert(testing);
                 }
@@ -177,20 +178,21 @@ std::string GDRects::hsvString(RGBA const &color) {
     output += std::to_string(s);
     output += "a";
     output += std::to_string(v);
-    output += "a1a1"; //?????
+    output += "a1a1";
     return output;
 }
 
 GDRects::GDRects(ImageRGB* pImage, float const pSize, float const pX, float const pY) {
-    //image = pImage;
-    setRects(pImage);
+    image = pImage;
+    setRects();
     size = pSize;
     mX = pX;
     mY = pY;
 }
 
 
-GDRects::GDRects(ImageRGB* pImage, float const pSize) : GDRects(pImage, pSize, 0, 0) {}
+GDRects::GDRects(ImageRGB* pImage, float const pSize) : GDRects(pImage, pSize, 0, 0) {
+}
 
 std::string GDRects::fullString() const {
     std::string output;

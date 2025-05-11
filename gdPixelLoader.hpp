@@ -71,21 +71,20 @@ namespace loader{
         static constexpr int BLACK_ID = 1010;
 
         std::unordered_map<RGBA, std::unordered_set<Rect>> rects;
-        //ImageRGB* image;
+        ImageRGB* image;
         double size;
         double mX;
         double mY;
 
         std::string rectToObjString(Rect const& rect, std::string const& hsvString) const;
-        void setRects(ImageRGB* image);
+        void setRects();
         static std::string hsvString(RGBA const& color);
     public:
         explicit GDRects(ImageRGB* pImage, float pSize, float pX, float pY);
         explicit GDRects(ImageRGB* pImage, float pSize);
-        std::string fullString() const;
+        std::string fullString () const;
         std::string fullStringColorLinked() const;
         std::string fullStringLinked() const;
         std::vector<std::string> splitByColorString () const;
     };
 }
-
